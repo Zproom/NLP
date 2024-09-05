@@ -53,8 +53,10 @@ nbformat==5.10.4
 nest-asyncio==1.6.0
 notebook==7.2.2
 notebook-shim==0.2.4
+numpy==1.24.4
 overrides==7.7.0
 packaging==24.1
+pandas==2.0.3
 pandocfilters==1.5.1
 parso==0.8.4
 pexpect==4.9.0
@@ -89,6 +91,7 @@ tomli==2.0.1
 tornado==6.4.1
 traitlets==5.14.3
 typing-extensions==4.12.2
+tzdata==2024.1
 urllib3==2.2.2
 wcwidth==0.2.13
 webencodings==0.5.1
