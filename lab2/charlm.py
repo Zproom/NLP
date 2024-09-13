@@ -64,10 +64,25 @@ def perplexity(text, lm, order=4):
     # Pad the input with "~" chars.  This handles the case where order > len(text).
     pad = "~" * order
     data = pad + text
-    # This is a stub.
+    len_data = len(data)
+    
+    # (1) First, we need to find the probability of text occurring with language model lm.
+    # To do this, we take a cumulative product of the probabilities of all the n-grams (based on order) created from the text (data variable).
+    # We take the log (base 2) of each n-gram probability before multiplying them together to avoid underflow.
+    sentence_prob = 0 # Initialize
     # Loop over data string and find probs and use to compute perplexity
-    return float("inf")
-
+    for i in range(order, len_data):
+        list_of_probs = lm[data[(i-order):i]]
+        dict_of_probs = dict(list_of_probs)
+        if data[i] not in dict_of_probs.keys():
+            return float("inf")
+        else:
+            n_gram_prob = -1*log2(float(dict_of_probs[data[i]]))
+            sentence_prob += n_gram_prob
+    
+    # (2) Finally, calculate perplexity using cross entropy.
+    return 2**(sentence_prob/(len_data-order))
+    
 # Computes per-char perplexity of a text, given an input LM.  Smoothing is very, very simple, just using a small constant
 def smoothed_perplexity(text, lm, order=4):
     # Pad the input with "~" chars.  This handles the case where order > len(text).
