@@ -64,15 +64,18 @@ def perplexity(text, lm, order=4):
     # Pad the input with "~" chars.  This handles the case where order > len(text).
     pad = "~" * order
     data = pad + text
-    len_data = len(data)
     
     # (1) First, we need to find the probability of text occurring with language model lm.
     # To do this, we take a cumulative product of the probabilities of all the n-grams (based on order) created from the text (data variable).
     # We take the log (base 2) of each n-gram probability before multiplying them together to avoid underflow.
+    len_data = len(data)
     sentence_prob = 0 # Initialize
     # Loop over data string and find probs and use to compute perplexity
     for i in range(order, len_data):
-        list_of_probs = lm[data[(i-order):i]]
+        try:
+            list_of_probs = lm[data[(i-order):i]]
+        except:
+            return float("inf") # Return inf if the order-length string of preceding characters isn't found.
         dict_of_probs = dict(list_of_probs)
         if data[i] not in dict_of_probs.keys():
             return float("inf")
@@ -88,8 +91,28 @@ def smoothed_perplexity(text, lm, order=4):
     # Pad the input with "~" chars.  This handles the case where order > len(text).
     pad = "~" * order
     data = pad + text
-    # This is a stub.
+    
+    # (1) First, we need to find the probability of text occurring with language model lm.
+    # To do this, we take a cumulative product of the probabilities of all the n-grams (based on order) created from the text (data variable).
+    # We take the log (base 2) of each n-gram probability before multiplying them together to avoid underflow.
+    len_data = len(data)
+    sentence_prob = 0 # Initialize
     # Loop over data string and find probs and use to compute perplexity
-    return 0.001
+    for i in range(order, len_data):
+        try:
+            list_of_probs = lm[data[(i-order):i]]
+        except:
+            n_gram_prob = 0.0000001 # Add 0.0000001 if the order-length string of preceding characters isn't found.
+            sentence_prob += n_gram_prob
+            continue
+        dict_of_probs = dict(list_of_probs)
+        if data[i] not in dict_of_probs.keys():
+            n_gram_prob = 0.0000001
+        else:
+            n_gram_prob = -1*log2(float(dict_of_probs[data[i]]))
+        sentence_prob += n_gram_prob
+    
+    # (2) Finally, calculate perplexity using cross entropy.
+    return 2**(sentence_prob/(len_data-order))
 
 # end of file
